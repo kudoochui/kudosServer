@@ -1,0 +1,40 @@
+{
+  "development":{
+    "gate":{
+      "gate-1":{"id":"gate-1", "host":"127.0.0.1", "port":5050, "clientPort": 5020},
+      "gate-2":{"id":"gate-2", "host":"127.0.0.1", "port":5051, "clientPort": 5021}
+    },
+
+    "login":{
+      "login-1":{"id":"login-1", "host":"127.0.0.1", "port":5060}
+    },
+    "user":{
+      "user-1":{"id":"user-1", "host":"127.0.0.1", "port":5070}
+    },
+    "world":{
+      "world-1":{"id":"world-1", "host":"127.0.0.1", "port":5080}
+    },
+    "carbon":{
+      "carbon-1":{"id": "carbon-1", "host": "127.0.0.1", "port": 5090}
+    }
+  },
+  "production":{
+    "gate":{
+      "gate-1":{"id":"gate-1", "host":"127.0.0.1", "port":5050, "clientPort": 5020},
+      "gate-2":{"id":"gate-2", "host":"127.0.0.1", "port":5051, "clientPort": 5021}
+    },
+
+    "login":{
+      "login-1":{"id":"login-1", "host":"127.0.0.1", "port":5060}
+    },
+    "user":{
+      "user-1":{"id":"user-1", "host":"127.0.0.1", "port":5070}
+    },
+    "world":{
+      "world-1":{"id":"world-1", "host":"127.0.0.1", "port":5080}
+    },
+    "carbon":{
+      "carbon-1":{"id": "carbon-1", "host": "127.0.0.1", "port": 5090}
+    }
+  }
+}

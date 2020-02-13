@@ -1,0 +1,11 @@
+syntax="proto3";
+package msg;
+
+message HiReq {
+    string route = 1;
+    string words = 2;
+}
+
+message HiResp {
+    string words = 1;
+}

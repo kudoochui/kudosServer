@@ -1,0 +1,17 @@
+{
+  "development": {
+    "host" : "127.0.0.1",
+    "port" : "27017",
+    "database" : "game_db",
+    "user" : "game",
+    "password" : "game123"
+  },
+
+  "production": {
+    "host" : "127.0.0.1",
+    "port" : "27017",
+    "database" : "game_db",
+    "user" : "game",
+    "password" : "game123"
+  }
+}

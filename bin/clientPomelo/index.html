@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/network.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    // var pomelo = window.pomelo;
+    var host = "127.0.0.1";
+    var port = "5020";
+
+    function pomelo_request(route, msg, cb){
+        pomelo.request(route, msg, function(data) {
+            console.log(route,"==>",data);
+            cb && cb(data);
+        });
+    }
+    //事件
+    function pomelo_on(event, func){
+        function ff(data){
+            console.log(event,"==>",data);
+            func && func(data);
+        }
+        pomelo.on(event, ff);
+    }
+
+    function show() {
+        pomelo.init({
+            host: host,
+            port: port,
+            log: true
+        }, function() {
+            pomelo_request("Hello.Say", {Words:"kudoo"}, function(data) {
+
+            });
+
+            pomelo_on("onNotify")
+            pomelo_on("onKick")
+        });
+    }
+</script>
+<div>
+    <div>
+        <input id="test" type="button" value="Test Game Server" onclick="show()"/>
+    </div>
+</div>
+</body>
+</html>

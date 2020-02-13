@@ -1,0 +1,13 @@
+{
+  "development": {
+    "addr" : "127.0.0.1:8500",
+    "registry" : "consul",
+    "basePath" : "nextGen"
+  },
+
+  "production": {
+    "addr" : "127.0.0.1:8500",
+    "registry" : "consul",
+    "basePath" : "nextGen"
+  }
+}
