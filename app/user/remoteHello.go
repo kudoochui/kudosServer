@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"github.com/kudoochui/kudos/rpc"
-	"github.com/kudoochui/kudos/service/sessionService"
 )
 
 type HelloReq struct {
@@ -26,9 +25,9 @@ func (h *Hello) Say(ctx context.Context, args *rpc.Args, replay *HelloResp) erro
 	//log.Info("hello" + req.Words)
 	replay.Words = "hello " + req.Words
 
-	go func(){
-		sessionService.GetSessionService().KickBySid(args.Session.NodeAddr, args.Session.GetSessionId(), "not allowed")
-	}()
+	//go func(){
+	//	sessionService.GetSessionService().KickBySid(args.Session.NodeAddr, args.Session.GetSessionId(), "not allowed")
+	//}()
 
 	//route := "onNotify"
 	//msg := &HelloResp{

@@ -4,5 +4,5 @@ go 1.12
 
 require (
 	github.com/golang/protobuf v1.3.3
-	github.com/kudoochui/kudos v0.0.0-20200213051613-189929d284dd
+	github.com/kudoochui/kudos v1.0.1-0.20200301032012-d89188388fe4
 )
