@@ -9,7 +9,6 @@ import (
 )
 
 type Args struct {
-	Route string
 	A int
 	B int
 }

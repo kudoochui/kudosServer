@@ -18,10 +18,12 @@ type Gate struct {
 	msgHandler *MsgHandler
 }
 
-var Server = func(serverId string) app.Server {
-	return &Gate{
-		ServerDefault: app.NewServerDefault(serverId),
-	}
+func init()  {
+	app.RegisterCreateServerFunc("gate", func(serverId string) app.Server {
+		return &Gate{
+			ServerDefault: app.NewServerDefault(serverId),
+		}
+	})
 }
 
 func (g *Gate) OnStart(){
@@ -71,17 +73,6 @@ func (g *Gate) Run(closeSig chan bool){
 	for _,com := range g.Components {
 		go com.Run(closeSig)
 	}
-	//test
-	//args := &Args{
-	//	A: 10,
-	//	B: 20,
-	//}
-	//reply := &Reply{}
-	//err := g.proxy.RpcCall("Arith", "Mul", args, reply)
-	//if err != nil {
-	//	log.Error("fail to cal: %v", err)
-	//}
-	//log.Info("%d * %d = %d", args.A, args.B, reply.C)
 
 	<-closeSig
 	//closing

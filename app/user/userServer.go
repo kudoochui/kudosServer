@@ -15,10 +15,12 @@ type UserServer struct {
 	msgHandler *MsgHandler
 }
 
-var Server = func(serverId string) app.Server {
-	return &UserServer{
-		ServerDefault: app.NewServerDefault(serverId),
-	}
+func init()  {
+	app.RegisterCreateServerFunc("user", func(serverId string) app.Server {
+		return &UserServer{
+			ServerDefault: app.NewServerDefault(serverId),
+		}
+	})
 }
 
 func (g *UserServer) OnStart(){

@@ -4,8 +4,8 @@ import (
 	"flag"
 	"github.com/kudoochui/kudos/app"
 	"github.com/kudoochui/kudos/log"
-	"github.com/kudoochui/kudosServer/app/gate"
-	"github.com/kudoochui/kudosServer/app/user"
+	_ "github.com/kudoochui/kudosServer/app/gate"
+	_ "github.com/kudoochui/kudosServer/app/user"
 	"github.com/kudoochui/kudosServer/config"
 )
 
@@ -19,59 +19,29 @@ func main() {
 
 	//codec.SetCodecType(codec.TYPE_CODEC_PROTOBUF)
 
-	switch *stype {
-	case "gate":
-		if *sid == "" {
-			// startup all gate
-			settings, err := config.ServersConfig.GetMap("gate")
+	if *stype != "" {
+		f := app.GetCreateServerFunc(*stype)
+		if *sid != "" {
+			app.Run(f(*sid))
+		} else {
+			setting, err := config.ServersConfig.GetMap(*stype)
 			if err != nil {
 				log.Error("%s", err)
 			}
 			servers := make([]app.Server, 0)
-			for k,_ := range settings {
-				servers = append(servers, gate.Server(k))
+			for k,_ := range setting {
+				servers = append(servers, f(k))
 			}
 			app.Run(servers...)
-		} else {
-			// startup specified gate
-			app.Run(gate.Server(*sid))
 		}
-
-	case "user":
-		if *sid == "" {
-			// startup all user server
-			settings, err := config.ServersConfig.GetMap("user")
-			if err != nil {
-				log.Error("%s", err)
-			}
-			servers := make([]app.Server, 0)
-			for k,_ := range settings {
-				servers = append(servers, user.Server(k))
-			}
-			app.Run(servers...)
-		} else {
-			// startup specified gate
-			app.Run(user.Server(*sid))
-		}
-
-	default:
-		// startup all server
-
-		//gate
-		gateSettings, err := config.ServersConfig.GetMap("gate")
-		if err != nil {
-			log.Error("%s", err)
-		}
-		userSettings, err := config.ServersConfig.GetMap("user")
-		if err != nil {
-			log.Error("%s", err)
-		}
+	} else {
+		settings,_ := config.ServersConfig.GetEnvMap()
 		servers := make([]app.Server, 0)
-		for k,_ := range gateSettings {
-			servers = append(servers, gate.Server(k))
-		}
-		for k,_ := range userSettings {
-			servers = append(servers, user.Server(k))
+		for stype, setting := range settings {
+			f := app.GetCreateServerFunc(stype)
+			for k,_ := range setting.(map[string]interface{}) {
+				servers = append(servers, f(k))
+			}
 		}
 		app.Run(servers...)
 	}
