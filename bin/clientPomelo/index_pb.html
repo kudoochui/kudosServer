@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/network.js"></script>
+    <script type="text/javascript" src="js/hi.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    // var pomelo = window.pomelo;
+    var host = "192.168.1.106";
+    var port = "5020";
+
+    function pomelo_request(route, msg, cb){
+        pomelo.request(route, msg, function(data) {
+            console.log(route,"==>",data);
+            cb && cb(data);
+        });
+    }
+    //事件
+    function pomelo_on(event, func){
+        function ff(data){
+            console.log(event,"==>",data);
+            func && func(data);
+        }
+        pomelo.on(event, ff);
+    }
+
+    //注册路由表，所有的路由和消息类型在这里建立联系
+    var pbRouteMap = {
+        "Hi.Say": {msgReq: proto.msg.HiReq, msgResp: proto.msg.HiResp}
+    }
+
+    function show() {
+        pomelo.init({
+            host: host,
+            port: port,
+            log: true,
+            pbRouteMap: pbRouteMap          //协议最大改动就是这里放了个消息映射表
+        }, function() {
+            var route = "Hi.Say";
+            var msg = pbRouteMap[route];    //只需要索引路由，逻辑层都不需要知道消息是什么类型
+            var hi = new msg.msgReq();
+            hi.setWords("kudoo");
+            console.log(hi.toObject());
+            var bin = hi.serializeBinary();
+            pomelo_request(route, bin, function(data) {
+                console.log(data.toObject())
+                console.log(data.getWords())
+            });
+
+            pomelo_on("onNotify")
+            pomelo_on("onKick")
+            pomelo_on("onFrame")
+        });
+    }
+</script>
+<div>
+    <div>
+        <input id="test" type="button" value="Test Game Server" onclick="show()"/>
+    </div>
+</div>
+</body>
+</html>

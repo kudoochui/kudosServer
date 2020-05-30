@@ -17,7 +17,8 @@ var (
 func main() {
 	flag.Parse()
 
-	//codec.SetCodecType(codec.TYPE_CODEC_PROTOBUF)
+	//切换到使用protobuf, 默认使用json
+	//codecService.SetCodecType(codecService.TYPE_CODEC_PROTOBUF)
 
 	if *stype != "" {
 		f := app.GetCreateServerFunc(*stype)

@@ -2658,6 +2658,7 @@ function hasOwnProperty(obj, prop) {
   var DEFAULT_MAX_RECONNECT_ATTEMPTS = 10;
 
   var useCrypto;
+  var pbRouteMap;
 
   var handshakeBuffer = {
     'sys': {
@@ -2678,6 +2679,8 @@ function hasOwnProperty(obj, prop) {
 
     encode = params.encode || defaultEncode;
     decode = params.decode || defaultDecode;
+
+    pbRouteMap = params.pbRouteMap;
 
     var url = 'ws://' + host;
     if(port) {
@@ -2723,7 +2726,7 @@ function hasOwnProperty(obj, prop) {
     } else if(decodeIO_encoder && decodeIO_encoder.lookup(route)) {
       var Builder = decodeIO_encoder.build(route);
       msg = new Builder(msg).encodeNB();
-    } else {
+    } else if(!pbRouteMap){
       msg = Protocol.strencode(JSON.stringify(msg));
     }
 
@@ -2999,8 +3002,11 @@ function hasOwnProperty(obj, prop) {
       return protobuf.decodeStr(route, msg.body);
     } else if(decodeIO_decoder && decodeIO_decoder.lookup(route)) {
       return decodeIO_decoder.build(route).decode(msg.body);
-    } else {
+    } else if(!pbRouteMap){
       return JSON.parse(Protocol.strdecode(msg.body));
+    } else {
+      var resp = pbRouteMap[route].msgResp;
+      msg = resp.deserializeBinary(msg.body)
     }
 
     return msg;
