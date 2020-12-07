@@ -9,12 +9,10 @@ import (
 )
 
 type RoomJoin struct {
-	Route 	string
 	Name	string
 }
 
 type RoomLeave struct {
-	Route 	string
 	Name	string
 }
 
@@ -46,7 +44,7 @@ func (r *Room) OnLeave(session *rpc.Session) error {
 		Words: fmt.Sprintf("%d leave", session.GetSessionId()),
 	}
 
-	c.PushMessage("onLeave", msg)
+	c.PushMessage("onLeave", msg, nil)
 	return nil
 }
 
@@ -66,7 +64,7 @@ func (r *RoomRemote) Join(ctx context.Context, args *rpc.Args, replay *RoomResp)
 		Words: "welcome",
 	}
 
-	c.PushMessage("onJoin", msg)
+	c.PushMessage("onJoin", msg, nil)
 	return nil
 }
 
@@ -87,7 +85,7 @@ func (r *RoomRemote) Leave(ctx context.Context, args *rpc.Args, replay *RoomResp
 		Words: req.Name + " leave",
 	}
 
-	c.PushMessage("onLeave", msg)
+	c.PushMessage("onLeave", msg, nil)
 	return nil
 }
 
@@ -106,6 +104,6 @@ func (r *RoomRemote) Say(ctx context.Context, args *rpc.Args, replay *HelloResp)
 		Words: req.Words,
 	}
 
-	c.PushMessage("onSay", msg)
+	c.PushMessage("onSay", msg, nil)
 	return nil
 }

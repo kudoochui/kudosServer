@@ -6,7 +6,6 @@ import (
 )
 
 type HelloReq struct {
-	Route 	string
 	Words	string
 }
 
@@ -26,13 +25,13 @@ func (h *Hello) Say(ctx context.Context, args *rpc.Args, replay *HelloResp) erro
 	replay.Words = "hello " + req.Words
 
 	//go func(){
-	//	sessionService.GetSessionService().KickBySid(args.Session.NodeAddr, args.Session.GetSessionId(), "not allowed")
+	//	sessionService.GetSessionService().KickBySid(args.Session.NodeId, args.Session.GetSessionId(), "not allowed")
 	//}()
 
 	//route := "onNotify"
 	//msg := &HelloResp{
 	//	Words: "welcome",
 	//}
-	//channel.GetChannelService().PushMessageBySid(args.Session.NodeAddr, route, msg, []int64{args.Session.SessionId})
+	//channelService.GetChannelService().PushMessageBySid(args.Session.NodeId, route, msg, []int64{args.Session.SessionId})
 	return nil
 }

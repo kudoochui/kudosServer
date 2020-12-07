@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/kudoochui/kudos/app"
 	"github.com/kudoochui/kudos/log"
+	"github.com/kudoochui/kudos/service/rpcClientService"
 	_ "github.com/kudoochui/kudosServer/app/gate"
 	_ "github.com/kudoochui/kudosServer/app/user"
 	"github.com/kudoochui/kudosServer/config"
@@ -19,6 +20,10 @@ func main() {
 
 	//切换到使用protobuf, 默认使用json
 	//codecService.SetCodecType(codecService.TYPE_CODEC_PROTOBUF)
+	rpcClientService.GetRpcClientService().Initialize(
+		rpcClientService.RegistryType(config.RegistryConfig.String("registry")),
+		rpcClientService.RegistryAddr(config.RegistryConfig.String("addr")),
+		rpcClientService.BasePath(config.RegistryConfig.String("basePath")))
 
 	if *stype != "" {
 		f := app.GetCreateServerFunc(*stype)

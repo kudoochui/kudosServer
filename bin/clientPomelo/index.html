@@ -8,7 +8,7 @@
 <body>
 <script type="text/javascript">
     // var pomelo = window.pomelo;
-    var host = "127.0.0.1";
+    var host = "192.168.38.70";
     var port = "5020";
 
     function pomelo_request(route, msg, cb){
@@ -32,18 +32,47 @@
             port: port,
             log: true
         }, function() {
-            pomelo_request("Hello.Say", {Words:"kudoo"}, function(data) {
+            // pomelo_request("Hello.Say", {Words:"kudoo"}, function(data) {
+            //
+            // });
+            pomelo_request("User.Login", {Account:"kudoo"}, function(data) {
 
             });
 
             pomelo_on("onNotify")
             pomelo_on("onKick")
+
+            //channel test
+            pomelo_on("onJoin")
+            pomelo_on("onLeave")
+            pomelo_on("onSay")
+        });
+    }
+
+    function join() {
+        pomelo_request("RoomRemote.Join", {Name:"kudoo"}, function(data) {
+
+        });
+    }
+
+    function leave() {
+        pomelo_request("RoomRemote.Leave", {Name:"kudoo"}, function(data) {
+
+        });
+    }
+
+    function say() {
+        pomelo_request("RoomRemote.Say", {Words:"kudoo"}, function(data) {
+
         });
     }
 </script>
 <div>
     <div>
         <input id="test" type="button" value="Test Game Server" onclick="show()"/>
+        <input id="test" type="button" value="join" onclick="join()"/>
+        <input id="test" type="button" value="leave" onclick="leave()"/>
+        <input id="test" type="button" value="say" onclick="say()"/>
     </div>
 </div>
 </body>

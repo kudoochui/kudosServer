@@ -1,9 +1,9 @@
 package user
 
 import (
-	"github.com/kudoochui/kudos/rpc"
+	"github.com/kudoochui/kudos/component"
+	"github.com/kudoochui/kudos/component/remote"
 	msgService "github.com/kudoochui/kudos/service/msgService"
-	"github.com/kudoochui/kudosServer/app/user/msg"
 )
 
 // register server service to remote
@@ -14,18 +14,24 @@ func RegisterHandler(msg interface{}){
 }
 
 type MsgHandler struct {
-	r rpc.HandlerRegister
+	server		component.ServerImpl
+	rpcServer 		*remote.Remote
+}
+
+func NewMsgHandler(s component.ServerImpl) *MsgHandler {
+	h := &MsgHandler{server:s}
+	h.rpcServer = h.server.GetComponent("remote").(*remote.Remote)
+	return h
 }
 
 func (m *MsgHandler)RegisterHandler()  {
 	for _,v := range msgArray {
-		m.r.RegisterHandler(v,"")
+		m.rpcServer.RegisterHandler(v,"")
 	}
 }
 
 func init() {
 	RegisterHandler(new(Hello))
-	RegisterHandler(new(Hi))
 	room := &Room{
 		roomRemote: &RoomRemote{},
 	}
@@ -34,10 +40,11 @@ func init() {
 	RegisterHandler(&User{room:room})
 
 	// register msg type
+	msgService.GetMsgService().Register("User.Login", &LoginReq{}, &LoginResp{})
 	msgService.GetMsgService().Register("Hello.Say", &HelloReq{}, &HelloResp{})
-	msgService.GetMsgService().Register("Hi.Say", &msg.HiReq{}, &msg.HiResp{})
 	msgService.GetMsgService().Register("RoomRemote.Join", &RoomJoin{}, &RoomResp{})
 	msgService.GetMsgService().Register("RoomRemote.Leave", &RoomLeave{}, &RoomResp{})
+	msgService.GetMsgService().Register("RoomRemote.Say", &HelloReq{}, &HelloResp{})
 	msgService.GetMsgService().RegisterPush("onNotify")
 	msgService.GetMsgService().RegisterPush("onLeave")
 	msgService.GetMsgService().RegisterPush("onJoin")

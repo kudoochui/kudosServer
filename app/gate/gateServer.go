@@ -2,14 +2,13 @@ package gate
 
 import (
 	"fmt"
-	"github.com/kudoochui/kudosServer/config"
 	"github.com/kudoochui/kudos/app"
-	"github.com/kudoochui/kudos/component/connector"
-	rpcClient "github.com/kudoochui/kudos/component/proxy"
+	"github.com/kudoochui/kudos/component/connector/pomelo"
 	rpcServer "github.com/kudoochui/kudos/component/remote"
-	"github.com/kudoochui/kudos/component/timers"
 	"github.com/kudoochui/kudos/log"
 	"github.com/kudoochui/kudos/rpc"
+	"github.com/kudoochui/kudos/service/rpcClientService"
+	"github.com/kudoochui/kudosServer/config"
 )
 
 type Gate struct {
@@ -34,8 +33,8 @@ func (g *Gate) OnStart(){
 	serverSetting := settings[g.ServerId].(map[string]interface{})
 	wsAddr := fmt.Sprintf("%s:%.f",serverSetting["host"], serverSetting["clientPort"])
 	remoteAddr := fmt.Sprintf("%s:%.f",serverSetting["host"], serverSetting["port"])
-	conn := connector.NewConnector(
-		connector.WSAddr(wsAddr),
+	conn := pomelo.NewConnector(
+		pomelo.WSAddr(wsAddr),
 		)
 	g.Components["connector"] = conn
 
@@ -45,34 +44,26 @@ func (g *Gate) OnStart(){
 		rpcServer.RegistryAddr(config.RegistryConfig.String("addr")),
 		rpcServer.BasePath(config.RegistryConfig.String("basePath")))
 	g.Components["remote"] = remote
-	g.msgHandler = &MsgHandler{r:remote}
+	g.msgHandler = NewMsgHandler(g)
 
-	proxy := rpcClient.NewProxy(
-		rpcClient.RegistryType(config.RegistryConfig.String("registry")),
-		rpcClient.RegistryAddr(config.RegistryConfig.String("addr")),
-		rpcClient.BasePath(config.RegistryConfig.String("basePath")))
-	g.Components["proxy"] = proxy
+	//proxy := rpcClient.NewProxy(
+	//	rpcClient.RegistryType(config.RegistryConfig.String("registry")),
+	//	rpcClient.RegistryAddr(config.RegistryConfig.String("addr")),
+	//	rpcClient.BasePath(config.RegistryConfig.String("basePath")))
+	//g.Components["proxy"] = proxy
 
-	timer := timers.NewTimer()
-	g.Components["timer"] = timer
+	//timer := timers.NewTimer()
+	//g.Components["timer"] = timer
 
-	for _,com := range g.Components {
-		com.OnInit()
-	}
+	g.OnInit()
 
 	// register service.  Note: must behind remote OnInit
 	g.msgHandler.RegisterHandler()
-
-	conn.SetRouter(proxy)
-	conn.SetRegisterServiceHandler(remote)
-	proxy.SetRpcResponder(conn)
 	conn.SetConnectionListener(g)
 }
 
 func (g *Gate) Run(closeSig chan bool){
-	for _,com := range g.Components {
-		go com.Run(closeSig)
-	}
+	g.OnRun(closeSig)
 
 	<-closeSig
 	//closing
@@ -80,16 +71,13 @@ func (g *Gate) Run(closeSig chan bool){
 }
 
 func (g *Gate) OnStop(){
-	for _,com := range g.Components {
-		com.OnDestroy()
-	}
+	g.OnDestroy()
 }
 
 func (g *Gate) OnDisconnect(session *rpc.Session) {
-	proxy := g.GetComponent("proxy").(*rpcClient.Proxy)
 	args := &rpc.Args{
 		Session: *session,
 	}
 	reply := &rpc.Reply{}
-	proxy.RpcCall("User", "OnOffline", args, reply)
+	rpcClientService.GetRpcClientService().Call("User", "OnOffline", args, reply)
 }

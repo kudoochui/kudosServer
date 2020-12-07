@@ -1,31 +1,28 @@
 package gate
 
 import (
-	"github.com/kudoochui/kudos/rpc"
+	"github.com/kudoochui/kudos/component"
+	"github.com/kudoochui/kudos/component/remote"
 	"github.com/kudoochui/kudos/service/msgService"
 )
 
-// register server service to remote
-var msgArray = []interface{}{}
-
-func RegisterHandler(msg interface{}){
-	msgArray = append(msgArray, msg)
+type MsgHandler struct {
+	server		component.ServerImpl
+	rpcServer 		*remote.Remote
 }
 
-type MsgHandler struct {
-	r rpc.HandlerRegister
+func NewMsgHandler(s component.ServerImpl) *MsgHandler {
+	h := &MsgHandler{server:s}
+	h.rpcServer = h.server.GetComponent("remote").(*remote.Remote)
+	return h
 }
 
 func (m *MsgHandler)RegisterHandler()  {
-	for _,v := range msgArray {
-		m.r.RegisterHandler(v,"")
-	}
+	// register service
+	m.rpcServer.RegisterHandler(new(Arith), "")
 }
 
 func init() {
-	// register service
-	RegisterHandler(new(Arith))
-
 	// register msg type
 	msgService.GetMsgService().Register("Arith.Mul", &Args{}, &Reply{})
 }

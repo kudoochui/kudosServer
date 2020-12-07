@@ -37,7 +37,7 @@ func (g *UserServer) OnStart(){
 		rpcServer.RegistryAddr(config.RegistryConfig.String("addr")),
 		rpcServer.BasePath(config.RegistryConfig.String("basePath")))
 	g.Components["remote"] = remote
-	g.msgHandler = &MsgHandler{r:remote}
+	g.msgHandler = NewMsgHandler(g)
 
 	proxy := rpcClient.NewProxy(
 		rpcClient.RegistryType(config.RegistryConfig.String("registry")),
@@ -45,25 +45,19 @@ func (g *UserServer) OnStart(){
 		rpcClient.BasePath(config.RegistryConfig.String("basePath")))
 	g.Components["proxy"] = proxy
 
-	for _,com := range g.Components {
-		com.OnInit()
-	}
+	g.OnInit()
 
 	// register service
 	g.msgHandler.RegisterHandler()
 }
 
 func (g *UserServer) Run(closeSig chan bool){
-	for _,com := range g.Components {
-		go com.Run(closeSig)
-	}
+	g.OnRun(closeSig)
 	<-closeSig
 	//closing
 	log.Info("user closing")
 }
 
 func (g *UserServer) OnStop(){
-	for _,com := range g.Components {
-		com.OnDestroy()
-	}
+	g.OnDestroy()
 }
