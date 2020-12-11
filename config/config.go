@@ -16,7 +16,8 @@ func init()  {
 	RedisConfig, _ = conf.NewAppConfig("redis.json")
 	MongoConfig, _ = conf.NewAppConfig("mongodb.json")
 	MysqlConfig, _ = conf.NewAppConfig("mysql.json")
-	ServersConfig, _ = conf.NewAppConfig("servers.json")
+	ServersConfig, _ = conf.NewAppConfig("servers.json")				// pomelo server
+	//ServersConfig, _ = conf.NewAppConfig("pbservers.json")		// pb server
 	RegistryConfig, _ = conf.NewAppConfig("registry.json")
 
 	conf.NodeId,_ = GameConfig.Int64("nodeId")

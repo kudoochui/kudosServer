@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>kudos pb test</title>
+    <script type="text/javascript" src="js/msg.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+    var encode = function(id, body){
+        var length = body ? body.length : 0;
+        var size = length + 4
+        var buffer = new Uint8Array(length + 8);
+        var index = 0;
+        buffer[index++] = (size >> 24) & 0xff;
+        buffer[index++] = (size >> 16) & 0xff;
+        buffer[index++] = (size >> 8) & 0xff;
+        buffer[index++] = size & 0xff;
+        buffer[index++] = (id >> 24) & 0xff;
+        buffer[index++] = (id >> 16) & 0xff;
+        buffer[index++] = (id >> 8) & 0xff;
+        buffer[index++] = id & 0xff;
+        if(body) {
+            copyArray(buffer, index, body, 0, length);
+        }
+        return buffer;
+    };
+
+    var decode = function(buffer){
+        var bytes =  new Uint8Array(buffer);
+        var index = 0;
+        var payloadSize = ((bytes[index++]) << 24 | (bytes[index++]) << 16 | (bytes[index++]) << 8 | bytes[index++]) >>> 0;
+        var id = ((bytes[index++]) << 24 | (bytes[index++]) << 16 | (bytes[index++]) << 8 | bytes[index++]) >>> 0;
+        var length = bytes.length - 8
+        var body = new Uint8Array(length);
+        copyArray(body, 0, bytes, 8, length);
+        return {'id': id, 'body': body};
+    };
+
+    var copyArray = function(dest, doffset, src, soffset, length) {
+        if('function' === typeof src.copy) {
+            // Buffer
+            src.copy(dest, doffset, soffset, soffset + length);
+        } else {
+            // Uint8Array
+            for(var index=0; index<length; index++){
+                dest[doffset++] = src[soffset++];
+            }
+        }
+    };
+
+    var ws;
+    var callbacks = {}
+
+    function connect() {
+        ws = new WebSocket('ws://192.168.38.70:5020')
+        ws.onopen = function (event) {
+            console.log("ws connected:", event);
+        }
+
+        ws.onmessage = function (event) {
+            // var received_msg = evt.data;
+            // console.log("recv:", JSON.parse(event.data));
+
+            //-----------------------------------------
+            //Blob to Uint8Array
+            var reader = new FileReader();
+            reader.onload = function(event){
+                var content = reader.result;
+                var buf = new Uint8Array(content);
+                var data = decode(buf)
+                let fn = callbacks[data.id]
+                if (fn) {
+                    console.log('msg id:' + data.id)
+                    fn(data.body)
+                } else {
+                    console.log('msg id ' + data.id + ' not handled!')
+                }
+            };
+            reader.readAsArrayBuffer(event.data);
+            //-----------------------------------------
+        }
+
+        ws.onclose = function (event) {
+            console.log("ws closed: ", event);
+        };
+
+        ws.onerror = function (event) {
+            console.error("ws error observed:", event);
+        }
+    }
+
+    function login() {
+        var hi = new proto.msg.LoginReq();
+        hi.setAccount("kudoo")
+        console.log(hi.toObject());
+        var bin = hi.serializeBinary();
+        var data = encode(proto.msg.ECustomerMsgType.REQ_LOGIN, bin)
+        ws.send(data)
+
+        callbacks[proto.msg.ECustomerMsgType.RESP_LOGIN] = function (data) {
+            var b = proto.msg.LoginResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+
+        callbacks[proto.msg.ECustomerMsgType.PUSH_JOIN] = function (data) {
+            var b = proto.msg.HelloResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+
+        callbacks[proto.msg.ECustomerMsgType.PUSH_LEAVE] = function (data) {
+            var b = proto.msg.HelloResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+
+        callbacks[proto.msg.ECustomerMsgType.PUSH_SAY] = function (data) {
+            var b = proto.msg.HelloResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+    }
+
+    function join() {
+        var hi = new proto.msg.RoomJoin();
+        hi.setName("kudoo")
+        // console.log(hi.toObject());
+        var bin = hi.serializeBinary();
+        var data = encode(proto.msg.ECustomerMsgType.REQ_JOIN_ROOM, bin)
+        ws.send(data)
+
+        callbacks[proto.msg.ECustomerMsgType.RESP_JOIN_ROOM] = function (data) {
+            var b = proto.msg.RoomResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+    }
+
+    function leave() {
+        var hi = new proto.msg.RoomLeave();
+        hi.setName("kudoo")
+        // console.log(hi.toObject());
+        var bin = hi.serializeBinary();
+        var data = encode(proto.msg.ECustomerMsgType.REQ_LEAVE_ROOM, bin)
+        ws.send(data)
+
+        callbacks[proto.msg.ECustomerMsgType.RESP_LEAVE_ROOM] = function (data) {
+            var b = proto.msg.RoomResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+    }
+
+    function say() {
+        var hi = new proto.msg.HelloReq();
+        hi.setWords("kudoo")
+        // console.log(hi.toObject());
+        var bin = hi.serializeBinary();
+        var data = encode(proto.msg.ECustomerMsgType.REQ_HELLO, bin)
+        ws.send(data)
+
+        callbacks[proto.msg.ECustomerMsgType.RESP_HELLO] = function (data) {
+            var b = proto.msg.HelloResp.deserializeBinary(data)
+            console.log(b.toObject())
+        }
+    }
+</script>
+<div>
+    <div>
+        <input id="test" type="button" value="connect" onclick="connect()"/>
+        <input id="test" type="button" value="login" onclick="login()"/>
+        <input id="test" type="button" value="join" onclick="join()"/>
+        <input id="test" type="button" value="leave" onclick="leave()"/>
+        <input id="test" type="button" value="say" onclick="say()"/>
+    </div>
+</div>
+</body>
+</html>

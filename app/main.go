@@ -7,6 +7,8 @@ import (
 	"github.com/kudoochui/kudos/service/rpcClientService"
 	_ "github.com/kudoochui/kudosServer/app/gate"
 	_ "github.com/kudoochui/kudosServer/app/user"
+	//_ "github.com/kudoochui/kudosServer/app/gatebp"
+	//_ "github.com/kudoochui/kudosServer/app/world"
 	"github.com/kudoochui/kudosServer/config"
 )
 
@@ -17,7 +19,7 @@ var (
 
 func main() {
 	flag.Parse()
-
+	
 	//切换到使用protobuf, 默认使用json
 	//codecService.SetCodecType(codecService.TYPE_CODEC_PROTOBUF)
 	rpcClientService.GetRpcClientService().Initialize(

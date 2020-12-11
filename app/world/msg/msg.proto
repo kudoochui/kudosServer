@@ -1,0 +1,46 @@
+syntax="proto3";
+package msg;
+
+enum ECustomerMsgType {
+    TYPE_INVALID = 0;
+    REQ_LOGIN = 80000;
+    RESP_LOGIN = 80001;
+    REQ_HELLO = 80002;
+    RESP_HELLO = 80003;
+    REQ_JOIN_ROOM = 80004;
+    RESP_JOIN_ROOM = 80005;
+    REQ_LEAVE_ROOM = 80006;
+    RESP_LEAVE_ROOM = 80007;
+    PUSH_SAY = 80008;
+    PUSH_JOIN = 80009;
+    PUSH_LEAVE = 80010;
+}
+
+message LoginReq {
+    string Account = 1;
+}
+
+message LoginResp {
+	string Result = 1;
+}
+
+message HelloReq {
+	string Words = 1;
+}
+
+message HelloResp {
+	string Words = 1;
+}
+
+message RoomJoin {
+	string Name = 1;
+}
+
+message RoomLeave {
+	string Name = 1;
+}
+
+message RoomResp {
+ 	int32 Code = 1;
+    string ErrMsg = 2;
+}
