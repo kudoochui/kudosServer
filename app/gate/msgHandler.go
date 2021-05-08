@@ -24,5 +24,5 @@ func (m *MsgHandler)RegisterHandler()  {
 
 func init() {
 	// register msg type
-	msgService.GetMsgService().Register("Arith.Mul", &Args{}, &Reply{})
+	msgService.GetMsgService().Register("Arith.Mul", 0, 0, &Args{}, &Reply{})
 }
